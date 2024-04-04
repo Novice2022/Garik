@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "MWl8D/GODLhSv7+bsdQduXRuuYBZpBkoD5E7MFVu8mcdNuLi5Q1HL6BD8yOaI+HDVXj6erTZgk5bXkVhRxEi8Q==",
+  "success": true,
+  "projectFilePath": "C:\\Projects\\Garik\\Application\\Garik\\Garik.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\zabig\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.0\\microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\zabig\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.0\\microsoft.extensions.logging.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\zabig\\.nuget\\packages\\npgsql\\8.0.2\\npgsql.8.0.2.nupkg.sha512"
+  ],
+  "logs": []
+}

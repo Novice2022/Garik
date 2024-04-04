@@ -1,0 +1,12 @@
+client-requests:
+    * listen / read - use voice/text models and give response
+    * custom setting_name [parametr 1] [parametr ...] - customise garik settings
+    * coming soom
+
+settings schema:
+    * Start applications -> loading settings from file both sides
+    * UI calls python:
+        1. python changes settings file
+        2. application updates settings
+    * Note:
+        > None = use available most suitable way to process task
