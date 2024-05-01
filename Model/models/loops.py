@@ -444,8 +444,7 @@ class LoopsManager:
 			else:
 				current_model.\
 					manage_command(voice["transcription"])
-				response =\
-					f"Выполняю следующую команду: {
+				response = f"Выполняю следующую команду: {
 						voice["transcription"]}"
 		else:
 			self.output_voice.say(
