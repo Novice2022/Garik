@@ -24,3 +24,4 @@ C:\Projects\Garik\Application\Garik\obj\Debug\net8.0-windows\Views\MainWindow.g.
 C:\Projects\Garik\Application\Garik\obj\Debug\net8.0-windows\Views\MainWindow.baml
 C:\Projects\Garik\Application\Garik\obj\Debug\net8.0-windows\Garik.sourcelink.json
 C:\Projects\Garik\Application\Garik\obj\Debug\net8.0-windows\Garik.csproj.Up2Date
+C:\Projects\Garik\Application\Garik\bin\Debug\net8.0-windows\Newtonsoft.Json.dll

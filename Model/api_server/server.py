@@ -1,5 +1,10 @@
 from typing import Coroutine
 import asyncio
+from notifypy import Notify
+
+
+# def send_message(title: str = "", message: str = "") -> None:
+# 	Notify().send_notification(supplied_title=title, message=message)
 
 
 class ServerSocket:
@@ -18,17 +23,22 @@ class ServerSocket:
 		reader: asyncio.StreamReader,
 		writer: asyncio.StreamWriter
 	) -> None:
-		bytes_message = await reader.read(512)
-		message = bytes_message.decode(encoding="utf-8")
+		try:
+			bytes_message = await reader.read(512)
+			message = bytes_message.decode(encoding="utf-8")
 
-		print(f"{message} from {writer.get_extra_info('peername')}")
+			log_message = f"{message} from {writer.get_extra_info('peername')}" if message != "красный" else ""
 
-		process_result = await self.__processing_method(message)
+			print(log_message)
 
-		writer.write(process_result.encode(encoding="utf-8"))
+			process_result = await self.__processing_method(message)
 
-		await writer.drain()
-		writer.close()
+			writer.write(process_result.encode(encoding="utf-8"))
+
+			await writer.drain()
+			writer.close()
+		except OSError:
+			print("Excepting \"OSError: [WinError 64]\" - Client process closed")
 
 
 	async def serve(self) -> None:
@@ -46,6 +56,5 @@ class ServerSocket:
 	
 
 	async def __echo(self, message: str) -> str:
-		print(f"got: \"{message}\" | recieved: \"{
-			message.upper()}\"")
+		print(f"got: \"{message}\" | recieved: \"{message.upper()}\"")
 		return message.upper()

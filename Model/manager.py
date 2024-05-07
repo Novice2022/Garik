@@ -8,7 +8,8 @@ class Garik:
     def __init__(self) -> None:
         self.__loops_manager = LoopsManager()
         self.__server_socket = ServerSocket(
-            self.__loops_manager.processing_method)
+            self.__loops_manager.processing_method
+        )
     
     async def run(self) -> None:
         await self.__server_socket.serve()
@@ -26,12 +27,3 @@ if __name__ == "__main__":
 
 
 # python manager.py start
-
-
-
-"""
-
-* asyncio
-* sockets
-
-"""

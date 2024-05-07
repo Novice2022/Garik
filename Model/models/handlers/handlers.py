@@ -12,32 +12,37 @@ from .text_analysers import (
 
 
 class AppStarter:
-	def __init__(self) -> None:
+	def __init__(self) -> str:
 		with open(
-			"settings.json",
+			"C:\\Projects\\Garik\\Model\\settings.json",
 			encoding="utf-8",
 			mode='r'
 		) as file:
 			self.__settings = dict(json.load(file))
 			self.__programs = dict(self.__settings["programs"])
 
-	def start(self, name: str) -> None:
+	def start(self, name: str) -> str:
 		program_path = self.__programs.get(name)
+
+		print(f"{program_path = } | {name = }")
 		
 		if program_path:
 			system(program_path)
+			return f"start-app ok {name}"
 		else:
-			print("Добавь путь к приложению в settings.json")
+			return f"start-app add-to-settings {name}"
 
 
 class Searcher:
 	@staticmethod
-	def search(request: str) -> None:
+	def search(request: str) -> str:
 		webbrowser.open(
 			url=f"https://yandex.ru/search/?text={
-				"+".join(request[6:].split(' '))
+				"+".join(request.split(' '))
 			}"
 		)
+
+		return f"browse ok {request}"
 
 
 class KeyboardEmulator:

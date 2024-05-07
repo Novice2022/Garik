@@ -1,18 +1,21 @@
 ﻿using System.Net.Sockets;
+using System.Reflection.Metadata;
 using System.Text;
+using System.Windows;
 
 namespace Garik.Backend
 {
     public partial class ClientSocket
     {
-        async public Task SendMessage(string message)
+        private string serverAddress = "127.0.0.1";
+        private int port = 8888;
+
+        async public Task<string> SendMessage(string message)
         {
-            string serverAddress = "127.0.0.1";
-            int port = 8888;
+            //MessageBox.Show($"\'{message}\'");
 
             TcpClient client = new TcpClient();
             await client.ConnectAsync(serverAddress, port);
-
             NetworkStream stream = client.GetStream();
 
             byte[] data = Encoding.UTF8.GetBytes(message);
@@ -23,14 +26,16 @@ namespace Garik.Backend
             int bytesRead = await stream.ReadAsync(responseData, 0, responseData.Length);
             string responseMessage = Encoding.UTF8.GetString(responseData, 0, bytesRead);
 
-            await HandleResponse(responseMessage);
-
             client.Close();
+
+            string result = await handleResponse(responseMessage);
+
+            return result;
         }
 
-        async private Task HandleResponse(string response)
+        async private Task<string> handleResponse(string response)
         {
-            Console.WriteLine($"Received: {response}");
+            return $"Received: {response}";
         }
     }
 }

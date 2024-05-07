@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace Garik.Models
@@ -44,6 +38,7 @@ namespace Garik.Models
 		private string handlingModelType;
 		private bool fromClient;
 		private int messageID;
+		private string marginBottom;
 		
         public string Content 
 		{ 
@@ -115,6 +110,16 @@ namespace Garik.Models
 			get { return (fromClient ? 2 : 1); }
 		}
 
+		public string MarginBottom
+        {
+			get { return marginBottom; }
+			set
+			{
+                marginBottom = value;
+				OnPropertyChanged("MarginBottom");
+			}
+		}
+
 		public Message(
 			int message_id,
 			string content,
@@ -144,15 +149,7 @@ namespace Garik.Models
 		private RelayCommand copy;
 		public RelayCommand Copy
 		{
-			get
-			{
-				return copy ??
-					(copy = new RelayCommand(obj =>
-					{
-                        MessageBox.Show($"Copying to clipboard: \"{content}\"", $"Previous value: {Clipboard.GetText()}");
-                        Clipboard.SetText(content);
-                    }));
-			}
+			get { return copy ?? (copy = new RelayCommand(obj => { Clipboard.SetText(content); })); }
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
