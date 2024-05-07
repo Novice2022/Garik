@@ -1,6 +1,7 @@
 ﻿using Npgsql;
 using System.Collections.ObjectModel;
 using Garik.Models;
+using System.Windows;
 
 namespace Garik.Backend
 {
@@ -15,14 +16,9 @@ namespace Garik.Backend
             connection.Open();
         }
 
-        public ObservableCollection<Message> getMessages()
+        public ObservableCollection<Message> SelectMessages(string request = "SELECT * FROM messages")
         {
-            return [.. messagesSelect("SELECT * FROM messages")];
-        }
-
-        private List<Message> messagesSelect(string request)
-        {
-            List<Message> result = new List<Message>();
+            ObservableCollection<Message> result = new ObservableCollection<Message> ();
 
             using (var cmd = new NpgsqlCommand(request, connection))
             using (var reader = cmd.ExecuteReader())
@@ -41,18 +37,18 @@ namespace Garik.Backend
             return result;
         }
 
-        public void messagesInsert(string content, bool from_client, string handling_model_type, int response_for_message_id)
+        public void InsertMessage(string content, bool fromClient, string handlingModelType, int responseForMessageID)
         {
             using (
                 var cmd = new NpgsqlCommand(
-                    $"INSERT INTO messages (content, from_client, handling_model_type, response_for_message_id) VALUES ('{content}', {from_client}, '{handling_model_type}', {response_for_message_id})",
+                    $"INSERT INTO messages (message_content, from_client, handling_model_type, response_for_message_id) VALUES ('{content}', {fromClient}, '{handlingModelType}', {responseForMessageID})",
                     connection
                 )
             )
                 cmd.ExecuteNonQuery();
         }
 
-        public void setDefaultHistory()
+        public void SetDefaultHistory()
         {
             using (
                 var cmd = new NpgsqlCommand(
@@ -63,13 +59,13 @@ namespace Garik.Backend
                 cmd.ExecuteNonQuery();
         }
 
-        public Dictionary<string, string> getSettings()  // TODO: read settings table and convert tuples to dict<str, str>
+        public Dictionary<string, string> GetSettings()  // TODO: read settings table and convert tuples to dict<str, str>
         {
             Dictionary<string, string> settings = new Dictionary<string, string>();
 
             return settings;
         }
 
-        public void closeConnection() { connection.Close(); }
+        public void CloseConnection() { connection.Close(); }
     }
 }

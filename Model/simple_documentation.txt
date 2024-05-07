@@ -1,5 +1,5 @@
 client-requests:
-    * listen / read - use voice/text models and give response
+    * voice / text - use voice/text models and give response
     * custom setting_name [parametr 1] [parametr ...] - customise garik settings
     * coming soom
 
