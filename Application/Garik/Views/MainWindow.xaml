@@ -5,7 +5,7 @@
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:local="clr-namespace:Garik"
 		xmlns:vm="clr-namespace:Garik.ViewModels" d:DataContext="{d:DesignInstance Type=vm:ViewModel}"
-        mc:Ignorable="d"
+		mc:Ignorable="d"
 		Height="551"
 		Width="1147"
 		WindowStartupLocation="CenterScreen"
@@ -13,24 +13,24 @@
 		MinHeight="430"
 		MinWidth="500"
 		Background="White"
-        WindowState="{Binding WindowState, UpdateSourceTrigger=PropertyChanged}">
+		WindowState="{Binding WindowState, UpdateSourceTrigger=PropertyChanged}">
 
-    <Window.Resources>
-        <Style x:Key="noBackgroundHover" TargetType="Button">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Grid Background="{TemplateBinding Background}">
-                            <ContentPresenter   HorizontalAlignment="Center"
+	<Window.Resources>
+		<Style x:Key="noBackgroundHover" TargetType="Button">
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Button">
+						<Grid Background="{TemplateBinding Background}">
+							<ContentPresenter   HorizontalAlignment="Center"
 												VerticalAlignment="Center"/>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Resources>
+						</Grid>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+	</Window.Resources>
 
-    <Grid Background="White">
+	<Grid Background="White">
 		<Grid.RowDefinitions>
 			<RowDefinition x:Name="header" Height="30"/>
 			<RowDefinition Height="1"/>
@@ -47,68 +47,77 @@
 				<ColumnDefinition Width="50"/>
 			</Grid.ColumnDefinitions>
 
-            <Button Command="{Binding ClearHistory}" Padding="2.5" Background="Transparent" BorderThickness="0">
-                <StackPanel Orientation="Horizontal">
-                    <Image Source="C:\Projects\Garik\Application\Garik\Resources\Logos\user-circle.png"/>
-                </StackPanel>
-            </Button>
+			<Button Command="{Binding ClearHistory}" Padding="2.5" Background="Transparent" BorderThickness="0">
+				<StackPanel Orientation="Horizontal">
+					<Image Source="C:\Projects\Garik\Application\Garik\Resources\Logos\user-circle.png"/>
+				</StackPanel>
+			</Button>
 
 			<Label MouseLeftButtonDown="windowDragDrop" Grid.Column="1" Content="Гарик" VerticalContentAlignment="Center"/>
 
-            <Button Command="{Binding WrapWindow}" Grid.Column="2" Background="Transparent" BorderThickness="0" Padding="5">
-                <Viewbox>
-                    <Canvas Width="100" Height="100">
-                        <Path Data="M 27,48 L 73,48 L 73,52 L 27,52 Z" Fill="Black"/>
-                    </Canvas>
-                </Viewbox>
-            </Button>
+			<Button Command="{Binding WrapWindow}" Grid.Column="2" Background="Transparent" BorderThickness="0" Padding="5">
+				<Viewbox>
+					<Canvas Width="100" Height="100">
+						<Path Data="M 27,49 L 73,49 L 73,52 L 27,52 Z" Fill="Black"/>
+					</Canvas>
+				</Viewbox>
+			</Button>
 
-            <Button Command="{Binding SwitchWindowState}" Grid.Column="3" Background="Transparent" BorderThickness="0" Padding="5">
-                <Viewbox>
-                    <Canvas Width="100" Height="100">
-                        <Path Data="{Binding WindowStateButtonIcon, UpdateSourceTrigger=PropertyChanged}" Fill="Black"/>
-                    </Canvas>
-                </Viewbox>
-            </Button>
+			<Button Command="{Binding SwitchWindowState}" Grid.Column="3" Background="Transparent" BorderThickness="0" Padding="5">
+				<Viewbox>
+					<Canvas Width="100" Height="100">
+						<Path Data="{Binding WindowStateButtonIcon, UpdateSourceTrigger=PropertyChanged}" Fill="Black"/>
+					</Canvas>
+				</Viewbox>
+			</Button>
 
-            <!--<Button Click="closeGarik" Command="{Binding SendCommand}" CommandParameter="shutdown" Grid.Column="4" Background="Transparent" BorderThickness="0">-->
-            <Button Command="{Binding CloseGarik}" CommandParameter="shutdown" Grid.Column="4" Background="Transparent" BorderThickness="0" Padding="5">
-                <Viewbox>
-                    <Canvas Width="100" Height="100">
-                        <Path Data="M 22,18 L 50,46 L 78,18 L 82,22 L 54,50 L 82,78 L 78,82 L 50,54 L 22,82 L 18,78 L 46,50 L 18,22 L 22,18 Z" Fill="Black"/>
-                    </Canvas>
-                </Viewbox>
-            </Button>
-        </Grid>
+			<Button Command="{Binding CloseGarik}" CommandParameter="shutdown" Grid.Column="4" Background="Transparent" BorderThickness="0" Padding="8">
+				<Viewbox>
+					<Canvas Width="100" Height="100">
+						<Path Data="M 22,18 L 50,46 L 78,18 L 82,22 L 54,50 L 82,78 L 78,82 L 50,54 L 22,82 L 18,78 L 46,50 L 18,22 L 22,18 Z" Fill="Black"/>
+					</Canvas>
+				</Viewbox>
+			</Button>
+		</Grid>
 
 		<Rectangle Grid.Row="1" Height="1" Fill="LightGray"/>
 
 		<!-- application content -->
 		<Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="2*"/>
 				<ColumnDefinition Width="1"/>
-                <ColumnDefinition Width="220"/>
-            </Grid.ColumnDefinitions>
+				<ColumnDefinition Width="220"/>
+			</Grid.ColumnDefinitions>
 
-            <Rectangle Fill="LightGray" Grid.Column="1"/>
+			<Rectangle Fill="LightGray" Grid.Column="1"/>
 
-            <!-- tasks and states -->
+			<!-- tasks and states -->
 			<Grid Grid.Column="0">
 				<Grid.RowDefinitions>
-					<RowDefinition Height="25"/>
+					<RowDefinition Height="50"/>
 					<RowDefinition Height="1"/>
 					<RowDefinition Height="*"/>
 					<RowDefinition Height="1"/>
 					<RowDefinition Height="30"/>
 				</Grid.RowDefinitions>
 
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="25"/>
+                    </Grid.RowDefinitions>
+
+                    <Label Content="{Binding InteractionMode, UpdateSourceTrigger=PropertyChanged}" FontWeight="Bold"/>
+                    <Label Content="{Binding VoiceNotificationContent, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1"/>
+                </Grid>
+                
 				<Rectangle Fill="LightGray" Grid.Row="1"/>
 				<Rectangle Fill="LightGray" Grid.Row="3"/>
 
 				<ScrollViewer Grid.Row="2">
 					<StackPanel>
-                        <ItemsControl ItemsSource="{Binding Messages, UpdateSourceTrigger=PropertyChanged}">
+						<ItemsControl ItemsSource="{Binding Messages, UpdateSourceTrigger=PropertyChanged}">
 							<ItemsControl.ItemTemplate>
 								<DataTemplate>
 									<Grid>
@@ -122,11 +131,11 @@
 
 										<Grid.RowDefinitions>
 											<RowDefinition Height="10"/>
-                                            <RowDefinition Height="1*"/>
-                                            <RowDefinition Height="{Binding MarginBottom}"/>
-                                        </Grid.RowDefinitions>
+											<RowDefinition Height="1*"/>
+                                            <RowDefinition Height="{Binding MarginBottom, UpdateSourceTrigger=PropertyChanged}"/>
+										</Grid.RowDefinitions>
 
-                                        <Border Background="LightGray" CornerRadius="12" Grid.Row="1" Grid.Column="{Binding Indent, UpdateSourceTrigger=PropertyChanged}" Grid.ColumnSpan="2"  BorderThickness="1" BorderBrush="LightGray">
+                                        <Border Background="AliceBlue" CornerRadius="12" Grid.Row="1" Grid.Column="{Binding Indent, UpdateSourceTrigger=PropertyChanged}" Grid.ColumnSpan="2" BorderThickness="1" BorderBrush="#e0e0ff">
 											<Grid>
 												<Grid.RowDefinitions>
 													<RowDefinition Height="3"/>
@@ -142,7 +151,7 @@
 													<ColumnDefinition Width="3px"/>
 												</Grid.ColumnDefinitions>
 
-                                                <TextBlock Margin="5" Grid.Column="1" Grid.Row="1" Text="{Binding Content, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>
+												<TextBlock Margin="5" Grid.Column="1" Grid.Row="1" Text="{Binding Content, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>
 												<Border Grid.Row="2" BorderBrush="White"/>
 
 												<Grid Grid.Column="1" Grid.Row="3">
@@ -151,8 +160,8 @@
 														<ColumnDefinition Width="Auto"/>
 													</Grid.ColumnDefinitions>
 
-                                                    <Label FontSize="9" Content="{Binding SendingDatetime, UpdateSourceTrigger=PropertyChanged}"/>
-                                                    <Button Style="{StaticResource noBackgroundHover}" Grid.Column="1" Command="{Binding Copy}" Background="Transparent" BorderThickness="0" ToolTip="Копировать текст задания/ответа">
+													<Label FontSize="9" Content="{Binding SendingDatetime, UpdateSourceTrigger=PropertyChanged}"/>
+													<Button Style="{StaticResource noBackgroundHover}" Grid.Column="1" Command="{Binding Copy}" Background="Transparent" BorderThickness="0" ToolTip="Копировать текст задания/ответа">
 														<Image Width="12" Source="C:\Projects\Garik\Application\Garik\Resources\Logos\copy.png"/>
 													</Button>
 												</Grid>
@@ -173,74 +182,157 @@
 						<ColumnDefinition Width="30"/>
 					</Grid.ColumnDefinitions>
 
-                    <Button Command="{Binding SendCommand}" CommandParameter="text" Grid.Column="0" Padding="5" Background="Transparent" BorderThickness="0">
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="C:\Projects\Garik\Application\Garik\Resources\Logos\microphone.png"/>
-                        </StackPanel>
-                    </Button>
+                    <Button IsEnabled="{Binding IsEnabledListenButton, UpdateSourceTrigger=PropertyChanged}" Command="{Binding SendMessage}" CommandParameter="listen" Grid.Column="0" Padding="5" Background="Transparent" BorderThickness="0">
+						<StackPanel Orientation="Horizontal">
+							<Image Source="C:\Projects\Garik\Application\Garik\Resources\Logos\microphone.png"/>
+						</StackPanel>
+					</Button>
 
-                    <TextBox x:Name="CommandTextBox" Text="{Binding InputContent, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" VerticalContentAlignment="Center" BorderThickness="0">
-                        <TextBox.InputBindings>
-                            <KeyBinding Command="{Binding SendCommand}" CommandParameter="text" Key="Return"/>
-                        </TextBox.InputBindings>
-                    </TextBox>
+					<TextBox x:Name="CommandTextBox" Text="{Binding InputContent, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" VerticalContentAlignment="Center" BorderThickness="0">
+						<TextBox.InputBindings>
+							<KeyBinding Command="{Binding SendMessage}" CommandParameter="text" Key="Return"/>
+						</TextBox.InputBindings>
+					</TextBox>
 
-                    <Button Command="{Binding SendCommand}" CommandParameter="text" Visibility="{Binding SendButtonEnabled}" Grid.Column="2" Background="Transparent" BorderThickness="0">
-                        <Viewbox>
-                            <Canvas Width="24" Height="23">
-                                <Path Data="M 5,4 L 20,12 L 5,20 L 3,20 L 4 14 L 12,12 L 4 10 L 3,4 Z" Fill="Black"/>
-                            </Canvas>
-                        </Viewbox>
-                    </Button>
-                </Grid>
+                    <Button Command="{Binding SendMessage}" CommandParameter="text" Visibility="{Binding SendButtonEnabled, UpdateSourceTrigger=PropertyChanged}" Grid.Column="2" Background="Transparent" BorderThickness="0">
+						<Viewbox>
+							<Canvas Width="24" Height="23">
+								<Path Data="M 5,4 L 20,12 L 5,20 L 3,20 L 4 14 L 12,12 L 4 10 L 3,4 Z" Fill="Black"/>
+							</Canvas>
+						</Viewbox>
+					</Button>
+				</Grid>
 
 			</Grid>
 			
 			<!-- settings -->
-            <Grid Grid.Column="2">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="30"/>
-                    <RowDefinition Height="65"/>
-                    <RowDefinition Height="10"/>
-                    <RowDefinition Height="25"/>
-                    <RowDefinition Height="10"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+			<Grid Grid.Column="2">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="30"/>
+					<RowDefinition Height="65"/>
+					<RowDefinition Height="10"/>
+					<RowDefinition Height="25"/>
+					<RowDefinition Height="*"/>
+				</Grid.RowDefinitions>
 
-                <Label Grid.Row="0" Content="Настройки" HorizontalAlignment="Center" FontWeight="SemiBold"/>
+				<Label Grid.Row="0" Content="Настройки" HorizontalAlignment="Center" FontWeight="SemiBold"/>
 
-                <Grid Grid.Row="1">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="20"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+				<Grid Grid.Row="1">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="20"/>
+						<ColumnDefinition Width="*"/>
+					</Grid.ColumnDefinitions>
 
+					<Grid.RowDefinitions>
+						<RowDefinition Height="25"/>
+						<RowDefinition Height="20"/>
+						<RowDefinition Height="20"/>
+					</Grid.RowDefinitions>
+
+					<Label Grid.ColumnSpan="2" Content="Модель распознавание голоса:"/>
+					<RadioButton Content="Online" Command="{Binding Custom}" CommandParameter="to-online switch" IsChecked="{Binding IsEnabledOnlineVoice}" GroupName="VoiceModel" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center"/>
+					<RadioButton Content="Offline" Command="{Binding Custom}" CommandParameter="to-offline switch" IsChecked="{Binding IsEnabledOfflineVoice}" GroupName="VoiceModel" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center"/>
+				</Grid>
+
+				<Grid Grid.Row="3">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="25"/>
+					</Grid.RowDefinitions>
+
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="20"/>
+					</Grid.ColumnDefinitions>
+
+					<Label Grid.ColumnSpan="2" Content="Голос Гарика:"/>
+					<CheckBox Grid.Column="1" IsChecked="{Binding VoiceCheckBoxState}" Command="{Binding Custom}" CommandParameter="voice" VerticalAlignment="Center"/>
+				</Grid>
+
+                <Grid Grid.Row="5">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="25"/>
-                        <RowDefinition Height="20"/>
-                        <RowDefinition Height="20"/>
-                    </Grid.RowDefinitions>
+						<RowDefinition Height="25"/>
+						<RowDefinition Height="*"/>
+					</Grid.RowDefinitions>
 
-                    <Label Grid.ColumnSpan="2" Content="Модель распознавание голоса:"/>
-                    <RadioButton Content="Offline" Command="{Binding Custom}" CommandParameter="to-offline switch" IsChecked="{Binding IsEnabledOfflineVoice}" GroupName="VoiceModel" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center"/>
-                    <RadioButton Content="Online" Command="{Binding Custom}" CommandParameter="to-online switch" IsChecked="{Binding IsEnabledOnlineVoice}" GroupName="VoiceModel" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center"/>
-                </Grid>
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="25"/>
+                            <ColumnDefinition Width="65"/>
+						</Grid.ColumnDefinitions>
 
-                <Grid Grid.Row="3">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="25"/>
-                    </Grid.RowDefinitions>
+						<Label Content="Пути к приложениям:"/>
+                        <Button Command="{Binding CreateApplication}" Margin="2.5" Padding="3" Grid.Column="1" Background="Transparent" BorderThickness="0">
+                            <Viewbox>
+                                <Canvas Width="100" Height="100">
+                                    <Path Data="M 20 48 L 48 48 L 48 20 L 52 20 L 52 48 L 80 48 L 80 52 L 52 52 L 52 80 L 48 80 L 48 52 L 20 52 Z" Fill="Black"/>
+                                </Canvas>
+                            </Viewbox>
+                        </Button>
+                        <Button Command="{Binding OpenSettingsFile}" BorderThickness="0" Grid.Column="2" Margin="2.5" Content="Изменить" Background="Transparent" FontSize="10"/>
+					</Grid>
 
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="20"/>
-                    </Grid.ColumnDefinitions>
+					<Border Grid.Row="1" BorderThickness="1" BorderBrush="LightGray" Margin="2.5">
+						<ScrollViewer>
+							<ItemsControl ItemsSource="{Binding ApplicationsPanel}">
+								<ItemsControl.ItemTemplate>
+									<DataTemplate>
+										<Border Margin="2.5" Padding="2.5" Background="AliceBlue" CornerRadius="5" BorderThickness="0">
+											<Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="25"/>
+                                                    <RowDefinition Height="2.5"/>
+                                                    <RowDefinition Height="20"/>
+                                                </Grid.RowDefinitions>
 
-                    <Label Grid.ColumnSpan="2" Content="Голос Гарика:"/>
-                    <CheckBox Grid.Column="1" IsChecked="{Binding VoiceCheckBoxState}" Command="{Binding Custom}" CommandParameter="voice" VerticalAlignment="Center"/>
-                </Grid>
-            </Grid>
-        </Grid>
+                                                <Grid Grid.Row="0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition Width="30"/>
+                                                        <ColumnDefinition Width="30"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <TextBox x:Name="ApplicationName" Text="{Binding AppName, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" BorderThickness="0"/>
+                                                    
+                                                    <Button Command="{Binding AddApplication}" Margin="2.5" Padding="2.5" Grid.Column="1" Background="Transparent" BorderThickness="0">
+                                                        <Viewbox>
+                                                            <Canvas Width="100" Height="100">
+                                                                <Path Data="M 20 48 L 48 48 L 48 20 L 52 20 L 52 48 L 80 48 L 80 52 L 52 52 L 52 80 L 48 80 L 48 52 L 20 52 Z" Fill="Black"/>
+                                                            </Canvas>
+                                                        </Viewbox>
+                                                    </Button>
+                                                    <Button Command="{Binding SkipApplication}" Margin="2.5" Padding="2.5" Grid.Column="2" Background="Transparent" BorderThickness="0">
+                                                        <Viewbox>
+                                                            <Canvas Width="100" Height="100">
+                                                                <Path Data="M 22,18 L 50,46 L 78,18 L 82,22 L 54,50 L 82,78 L 78,82 L 50,54 L 22,82 L 18,78 L 46,50 L 18,22 L 22,18 Z" Fill="Black"/>
+                                                            </Canvas>
+                                                        </Viewbox>
+                                                    </Button>
+                                                </Grid>
+
+                                                <Grid Grid.Row="2">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition Width="22"/>
+                                                    </Grid.ColumnDefinitions>
+													
+                                                    <TextBox x:Name="ApplicationPath" Text="{Binding FilePath, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" VerticalContentAlignment="Center" BorderThickness="0"/>
+													<Viewbox Margin="2.5" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+														<Canvas Height="100" Width="100">
+                                                            <Path Data="{Binding PathChekerIco, UpdateSourceTrigger=PropertyChanged}" Fill="{Binding PathChekerIcoColor}"/>
+														</Canvas>
+													</Viewbox>
+                                                </Grid>
+											</Grid>
+										</Border>
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
+							</ItemsControl>
+						</ScrollViewer>
+					</Border>
+				</Grid>
+			</Grid>
+		</Grid>
 		<StackPanel Grid.Row="2"/>
 	</Grid>
 </Window>

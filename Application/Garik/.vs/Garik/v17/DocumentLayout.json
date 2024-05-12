@@ -3,16 +3,12 @@
   "WorkspaceRootPath": "C:\\Projects\\Garik\\Application\\Garik\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{433A851D-EE63-43C1-B72F-754CC87A43CD}|Garik.csproj|c:\\projects\\garik\\application\\garik\\viewmodels\\viewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{433A851D-EE63-43C1-B72F-754CC87A43CD}|Garik.csproj|solutionrelative:viewmodels\\viewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{433A851D-EE63-43C1-B72F-754CC87A43CD}|Garik.csproj|c:\\projects\\garik\\application\\garik\\views\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{433A851D-EE63-43C1-B72F-754CC87A43CD}|Garik.csproj|solutionrelative:views\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{433A851D-EE63-43C1-B72F-754CC87A43CD}|Garik.csproj|c:\\projects\\garik\\application\\garik\\backend\\clientsocket.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{433A851D-EE63-43C1-B72F-754CC87A43CD}|Garik.csproj|solutionrelative:backend\\clientsocket.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{433A851D-EE63-43C1-B72F-754CC87A43CD}|Garik.csproj|c:\\projects\\garik\\application\\garik\\viewmodels\\viewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{433A851D-EE63-43C1-B72F-754CC87A43CD}|Garik.csproj|solutionrelative:viewmodels\\viewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,42 +18,29 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "ClientSocket.cs",
-              "DocumentMoniker": "C:\\Projects\\Garik\\Application\\Garik\\Backend\\ClientSocket.cs",
-              "RelativeDocumentMoniker": "Backend\\ClientSocket.cs",
-              "ToolTip": "C:\\Projects\\Garik\\Application\\Garik\\Backend\\ClientSocket.cs",
-              "RelativeToolTip": "Backend\\ClientSocket.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAACkAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-05-07T17:08:07.746Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "MainWindow.xaml",
               "DocumentMoniker": "C:\\Projects\\Garik\\Application\\Garik\\Views\\MainWindow.xaml",
               "RelativeDocumentMoniker": "Views\\MainWindow.xaml",
               "ToolTip": "C:\\Projects\\Garik\\Application\\Garik\\Views\\MainWindow.xaml",
               "RelativeToolTip": "Views\\MainWindow.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2024-05-02T09:37:04.247Z",
+              "WhenOpened": "2024-05-09T13:47:46.382Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "ViewModel.cs",
               "DocumentMoniker": "C:\\Projects\\Garik\\Application\\Garik\\ViewModels\\ViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\ViewModel.cs",
               "ToolTip": "C:\\Projects\\Garik\\Application\\Garik\\ViewModels\\ViewModel.cs",
               "RelativeToolTip": "ViewModels\\ViewModel.cs",
-              "ViewState": "AQIAAI4AAAAAAAAAAAA3wLAAAAAAAAAA",
+              "ViewState": "AQIAAAIBAAAAAAAAAAAAACMBAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-05-01T16:54:48.242Z",
               "EditorCaption": ""

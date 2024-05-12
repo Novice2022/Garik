@@ -31,14 +31,14 @@ namespace Garik.Models
 	}
 
 	public class Message : INotifyPropertyChanged
-	{
+    {
         private string content;
         private int responseForMessageID;
 		private string sendingDatetime;
 		private string handlingModelType;
 		private bool fromClient;
 		private int messageID;
-		private string marginBottom;
+		private string marginBottom = "0";
 		
         public string Content 
 		{ 
@@ -124,7 +124,7 @@ namespace Garik.Models
 			int message_id,
 			string content,
 			bool from_client,
-			DateTime sending_datetime,
+            DateTime sending_datetime,
 			string handling_model_type,
 			int response_for_message_id
 		) {

@@ -6,7 +6,6 @@ using Garik.Backend;
 using System.Diagnostics;
 using System.Windows;
 
-
 namespace Garik.ViewModels
 {
 	class ViewModel : INotifyPropertyChanged
@@ -18,6 +17,16 @@ namespace Garik.ViewModels
 		private DataBase database = new DataBase();
 		private Process process = new Process();
 
+		public ObservableCollection<Message> Messages { get; set; }
+		public ObservableCollection<ApplicationHandler> ApplicationsPanel
+		{
+			get { return ApplicationsSettings.Applications; }
+			set
+			{
+				ApplicationsSettings.Applications = value;
+			}
+		}
+
 		private int lastMessageIndex = 0;
 
 		private string inputContent = "";
@@ -27,6 +36,43 @@ namespace Garik.ViewModels
 		private string windowStateButtonIcon = "M 30 30 L 70 30 L 70 70 L 30 70 M 35 35 L 65 35 L 65 65 L 35 65 Z";
 
 		private string previousVoiceModel = "";
+
+
+		public string IsEnabledListenButton
+		{
+			get
+			{
+				if (interactionMode == "Текстовый режим")
+					return "True";
+				return "False";
+			}
+		}
+
+
+		private string interactionMode = "Текстовый режим";
+		public string InteractionMode
+		{
+			get { return interactionMode; }
+			set
+			{
+				interactionMode = value;
+				OnPropertyChanged("InteractionMode");
+				OnPropertyChanged("IsEnabledListenButton");
+			}
+		}
+
+
+		private string voiceNotificationContent = "Нажмите на кнопку с микрофоном слева снизу, чтобы я Вас начал слушать";
+		public string VoiceNotificationContent
+		{
+			get { return voiceNotificationContent; }
+			set
+			{
+				voiceNotificationContent = value;
+				OnPropertyChanged("VoiceNotificationContent");
+			}
+		}
+
 
 		private string isEnabledOnlineVoice;
 		public string IsEnabledOnlineVoice
@@ -39,6 +85,7 @@ namespace Garik.ViewModels
 			}
 		}
 
+
 		private string isEnabledOfflineVoice;
 		public string IsEnabledOfflineVoice
 		{
@@ -50,6 +97,7 @@ namespace Garik.ViewModels
 			}
 		}
 
+
 		private string voiceCheckBoxState;
 		public string VoiceCheckBoxState
 		{
@@ -60,6 +108,7 @@ namespace Garik.ViewModels
 				OnPropertyChanged("VoiceCheckBoxState");
 			}
 		}
+
 
 		public string WindowState
 		{
@@ -80,6 +129,7 @@ namespace Garik.ViewModels
 				OnPropertyChanged("WindowStateButtonIcon");
 			}
 		}
+
 
 		public string InputContent
 		{
@@ -107,21 +157,21 @@ namespace Garik.ViewModels
 			}
 		}
 
-		public ObservableCollection<Message> Messages { get; set; }
 
 		public ViewModel()
 		{
-			Messages = database.SelectMessages();
-			Messages.Last().MarginBottom = "10";
-
-			lastMessageIndex = Messages.Count();
-
 			process.StartInfo.FileName = "python";
-			process.StartInfo.Arguments = "C:\\Projects\\Garik\\Model\\manager.py start";
+			process.StartInfo.Arguments = "C:/Projects/Garik/Model/manager.py start";
 			process.StartInfo.UseShellExecute = true;
 			// process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
 
 			process.Start();
+			Thread.Sleep(2500);
+
+			Messages = database.SelectMessages();
+			Messages.Last().MarginBottom = "10";
+
+			lastMessageIndex = Messages.Count();
 
 			voiceCheckBoxState = settings.Voice;
 			isEnabledOfflineVoice = settings.FastRecognition;
@@ -131,9 +181,6 @@ namespace Garik.ViewModels
 				previousVoiceModel = "offline";
 			else
 				previousVoiceModel = "online";
-
-			for (int i = 0; i < 2; i++)
-				SendCommand.Execute("custom voice");
 		}
 
 
@@ -148,61 +195,150 @@ namespace Garik.ViewModels
 
 		// <>----------------------------<> Actions  <>----------------------------<>
 
-		private RelayCommand sendCommand;
-		public RelayCommand SendCommand
+		private AsyncRelayCommand sendMessage;
+		public AsyncRelayCommand SendMessage
 		{
 			get
 			{
-				return sendCommand ??
-					(sendCommand = new RelayCommand(obj =>
-					{
-						string? parameter = obj as string;
-
-						if (parameter == "shutdown" || parameter.StartsWith("custom"))
-							Task.Run(async () => await client.SendMessage(parameter));
-						else if (parameter.StartsWith("text"))
-						{
-							Messages.Last().MarginBottom = "0";
-							Messages.Add(
-								new Message(
-									lastMessageIndex,
-									inputContent,
-									true,
-									DateTime.Now,
-									"text",
-									-1
-								)
-							);
-							Messages.Last().MarginBottom = "10";
-
-							lastMessageIndex++;
-							inputContent = $"{parameter} {inputContent}";
-
-							database.InsertMessage(inputContent, true, "text", -1);
-
-							string responseMessage = Task.Run(async () => await client.SendMessage(inputContent)).GetAwaiter().GetResult();
-
-							Messages.Last().MarginBottom = "0";
-							Messages.Add(
-								new Message(
-									lastMessageIndex,
-									responseMessage,
-									false,
-									DateTime.Now,
-									"text",
-									-1  // Change lately to replying message ID
-								)
-							);
-							Messages.Last().MarginBottom = "10";
-
-							InputContent = "";
-						}
-						else if (parameter == "voice")
-						{
-
-						}
-					}));
+				return sendMessage ?? (
+					sendMessage = new AsyncRelayCommand(async (obj) => await callServer(obj as string))
+				);
 			}
+		}
+
+		async private Task callServer(string? parameter)
+		{
+			if (parameter == "shutdown" || parameter.StartsWith("custom"))
+				await client.SendMessage(parameter);
+			else if (parameter.StartsWith("text"))
+			{
+				lastMessageIndex++;
+
+				Messages.Last().MarginBottom = "0";
+				Messages.Add(
+					new Message(
+						lastMessageIndex,
+						inputContent,
+						true,
+						DateTime.Now,
+						"text",
+						-1
+					)
+				);
+				Messages.Last().MarginBottom = "10";
+				database.InsertMessage(inputContent, true, "text", -1);
+
+				string responseMessage = await client.SendMessage($"{parameter} {inputContent}");
+				InputContent = "";
+
+				await handleResponse(responseMessage);
+			}
+			else if (parameter == "listen")
+			{
+				bool listenUntilStop = false;
+
+				do
+				{
+					InteractionMode = "Голосовой режим | Текстовые запросы ожидают своей очереди";
+					VoiceNotificationContent = "Чтобы я слушал Вас, пока не остановите, скажите \"[Гарик,] прислушивайся\", или \"[Гарик,] работаем\", или \"[Гарик,] слушай пока не остановлю\"";
+					string responseMessage = await client.SendMessage("listen");
+
+					if (responseMessage.StartsWith("voice-error"))
+					{
+						await handleResponse("voice-error");
+						return;
+					}
+
+					string voiceRequest = responseMessage.Substring(0, responseMessage.IndexOf(" ~ "));
+					responseMessage = responseMessage.Substring(voiceRequest.Length + 3);
+
+					if (voiceRequest != "")
+						switch (responseMessage)
+						{
+							case "listening-until-stop":
+								listenUntilStop = true;
+								InteractionMode = "Голосовой режим | Текстовые запросы ожидают своей очереди";
+								VoiceNotificationContent = "Слушаю, пока не скажете \"[Гарик,] отдыхай\"";
+								break;
+							case "stop-listen":
+								listenUntilStop = false;
+								break;
+							default:
+								lastMessageIndex++;
+
+								Messages.Last().MarginBottom = "0";
+								Messages.Add(
+									new Message(
+										lastMessageIndex,
+										voiceRequest,
+										true,
+										DateTime.Now,
+										"text",
+										-1
+									)
+								);
+								Messages.Last().MarginBottom = "10";
+								database.InsertMessage(voiceRequest, true, "voice", -1);
+
+                                await handleResponse(responseMessage);
+								break;
+						}
+				} while (listenUntilStop);
+
+				InteractionMode = "Текстовый режим";
+				VoiceNotificationContent = "Нажмите на кнопку с микрофоном слева снизу, чтобы я Вас начал слушать";
+			}
+		}
+
+		async private Task handleResponse(string response)
+		{
+			if (response == "can\'t understand")
+				response = "Не знаю как выполнить Ваш запрос :(";
+			else if (response.StartsWith("start-app add-to-settings"))
+			{
+				string applicationName = response.Replace("start-app add-to-settings ", "");
+				ApplicationsSettings.ShowApplication(new ApplicationHandler(applicationName));
+				response = $"Укажите путь до приложения \"{applicationName}\", чтобы я мог его запустить.";
+			}
+			else if (response.StartsWith("start-app"))
+			{
+				string command = response.Replace("start-app ", "");
+				string requestedApplication = command.Split(" ~ ")[0];
+				command = command.Substring(command.IndexOf(" ~ ") + 3);
+
+				response = $"Запустил: \"{requestedApplication}\"";
+
+				if (command.Contains(" ~ "))
+				{
+					Process process = new Process();
+					process.StartInfo.FileName = command.Split(" ~ ")[0];
+					process.StartInfo.Arguments = command.Substring(command.IndexOf(" ~ ") + 3).Replace(" ~ ", " ");
+					process.Start();
+				}
+				else
+					Process.Start(command);
+			}
+			else if (response == "voice-error")
+				response = "Не удалось распознать речь";
+			else if (response.StartsWith("browse ok"))
+				response = $"Нашёл для Вас: {response.Substring(10)}";
+
+			lastMessageIndex++;
+
+			Messages.Last().MarginBottom = "0";
+			Messages.Add(
+				new Message(
+					lastMessageIndex,
+					response,
+					false,
+					DateTime.Now,
+					"text",
+					lastMessageIndex - 1
+				)
+			);
+			Messages.Last().MarginBottom = "10";
+
+			database.InsertMessage(response, false, "text", lastMessageIndex - 1);
 		}
 
 
@@ -227,35 +363,67 @@ namespace Garik.ViewModels
 		}
 
 
-		private RelayCommand custom;
-		public RelayCommand Custom
+		private AsyncRelayCommand custom;
+		public AsyncRelayCommand Custom
 		{
 			get
 			{
-				return custom ??
-					(custom = new RelayCommand(obj =>
+				return custom ?? (
+					custom = new AsyncRelayCommand(
+						async obj => await sendCustomMessage(obj as string)
+					)
+				);
+			}
+		}
+
+		async private Task sendCustomMessage(string? parameter)
+		{
+			if (parameter == "voice")
+			{
+				SendMessage.Execute("custom voice");
+				return;
+			}
+
+			string? suffix = parameter.Substring(0, parameter.IndexOf(' '));
+
+			if (
+				(suffix == "to-offline" && previousVoiceModel == "online") ||
+				(suffix == "to-online" && previousVoiceModel == "offline")
+			)
+			{
+				previousVoiceModel = suffix.Split("-").ToList()[1];
+				SendMessage.Execute("custom switch");
+			}
+		}
+
+		private RelayCommand openSettingsFile;
+
+		public RelayCommand OpenSettingsFile
+		{
+			get
+			{
+				return openSettingsFile ?? (
+					openSettingsFile = new RelayCommand(
+						obj => {
+							Process.Start("notepad", "C:\\Projects\\Garik\\Model\\applications.json");
+						}
+					)
+				);
+			}
+		}
+
+
+		private RelayCommand createApplication;
+		public RelayCommand CreateApplication
+		{
+			get
+			{
+				return createApplication ?? (
+					createApplication = new RelayCommand(obj =>
 					{
-						string? parameter = obj as string;
-
-						//MessageBox.Show(parameter, $"\'custom {parameter.Substring(parameter.IndexOf(' ') + 1)}\'");
-
-						if (parameter == "voice")
-						{
-							sendCommand.Execute("custom voice");
-							return;
-						}
-
-                        string? suffix = parameter.Substring(0, parameter.IndexOf(' '));
-
-						if (
-							(suffix == "to-offline" && previousVoiceModel == "online") ||
-							(suffix == "to-online" && previousVoiceModel == "offline")
-						)
-						{
-							previousVoiceModel = suffix.Split("-").ToList()[1];
-							sendCommand.Execute("custom switch");
-						}
-					}));
+						ApplicationsSettings.ShowApplication(new ApplicationHandler());
+					})
+				);
 			}
 		}
 
@@ -299,20 +467,22 @@ namespace Garik.ViewModels
 		}
 
 
-		private RelayCommand closeGarik;
-		public RelayCommand CloseGarik
+		private AsyncRelayCommand closeGarik;
+		public AsyncRelayCommand CloseGarik
 		{
 			get
 			{
 				return closeGarik ??
-					(closeGarik = new RelayCommand(obj =>
-					{
-						database.CloseConnection();
-						SendCommand.Execute("shutdown");
-						process.Close();
-						Application.Current.Shutdown();
-					}));
+					(closeGarik = new AsyncRelayCommand(async obj => await sendShutdownMessage()));
 			}
+		}
+
+		async private Task sendShutdownMessage()
+		{
+			database.CloseConnection();
+			SendMessage.Execute("shutdown");
+			process.Close();
+			Application.Current.Shutdown();
 		}
 	}
 }

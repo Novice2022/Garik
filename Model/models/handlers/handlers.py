@@ -3,7 +3,6 @@ import pyautogui
 import pyperclip
 import keyboard
 import json
-from os import system
 
 from .text_analysers import (
 	normalise_punctuation,
@@ -12,23 +11,41 @@ from .text_analysers import (
 
 
 class AppStarter:
+	programs: dict[str, str]
+
 	def __init__(self) -> str:
+		AppStarter.update()
+		
+	@staticmethod
+	def update() -> None:
 		with open(
-			"C:\\Projects\\Garik\\Model\\settings.json",
+			"C:/Projects/Garik/Model/applications.json",
 			encoding="utf-8",
 			mode='r'
 		) as file:
-			self.__settings = dict(json.load(file))
-			self.__programs = dict(self.__settings["programs"])
+			AppStarter.programs = dict(json.loads(
+				''.join(file.readlines()).lower()
+			))
 
-	def start(self, name: str) -> str:
-		program_path = self.__programs.get(name)
-
-		print(f"{program_path = } | {name = }")
+	async def start(self, name: str) -> str:
+		program_path = AppStarter.programs.get(
+			name.lower()
+		)
 		
 		if program_path:
-			system(program_path)
-			return f"start-app ok {name}"
+			normalised_path = ""
+			quotes = False
+
+			for char in program_path:
+				if char == "\"":
+					quotes = not quotes
+					normalised_path += "\""
+				elif char == " " and not quotes:
+					normalised_path += " ~ "
+				else:
+					normalised_path += char
+
+			return f"start-app {name} ~ {normalised_path}"
 		else:
 			return f"start-app add-to-settings {name}"
 

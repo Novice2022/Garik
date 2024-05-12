@@ -1,110 +1,111 @@
-from os import system
 import speech_recognition
 from vosk import Model, KaldiRecognizer, SetLogLevel
 import pyaudio
 import json
-from typing import overload
+from typing import overload, Any
 
 from voice.output import Output
+from metaclasses.singleton import MetaSingleton
 
 
-class OnlineVoiceInput:
-    @staticmethod
-    def listen(
-        voice_output: Output,
-        empty_previous: bool = False,
-        first_run: bool = True
-    ) -> dict:
-        recogniser = speech_recognition.Recognizer()
-        microphone = speech_recognition.Microphone()
-
-        response = {
-            "success": True,
-            "error": None,
-            "transcription": None
-        }
-
-        print("перед with")
-        with microphone as source:
-            recogniser.adjust_for_ambient_noise(source)
-            if empty_previous or first_run:
-                print(f"\n{"=" * 70}\n\nСлушаю тебя, дружище")
-                voice_output.say("I\'m listening you")
-            
-            audio = recogniser.listen(source)
-
-            try:
-                response["transcription"] = str(recogniser.\
-                    recognize_google(audio, language="ru-RU")).\
-                        lower().replace("гарик ", "", 1)
-            except speech_recognition.RequestError:
-                response["success"] = False
-                response["error"] = "unavailable"
-            except speech_recognition.UnknownValueError:
-                response["success"] = False
-                response["error"] = "doesn\'t understand"
-
-            return response
+class OnlineVoiceInput(metaclass=MetaSingleton):
+	def __init__(self) -> None:
+		self.__recogniser = speech_recognition.Recognizer()
+		self.__microphone = speech_recognition.Microphone()
 
 
-class OfflineVoiceInput:
-    @staticmethod
-    def listen(
-        voice_output: Output,
-        empty_previous: bool = False,
-        first_run: bool = True
-    ) -> dict:
-        while True:
-            with open(
-                "settings.json",
-                encoding="utf-8",
-                mode='r'
-            ) as file:
-                data = dict(json.load(file))
-                model_path = data["offline-recognition-model-path"]
+	async def listen(
+		self,
+		voice_output: Output,
+		first_run: bool = True
+	) -> dict[str, Any]:
 
-            SetLogLevel(-1)
+		response = {
+			"success": True,
+			"error": None,
+			"transcription": None
+		}
 
-            model = Model(model_path)
-            rec = KaldiRecognizer(model, 16000)
-            p = pyaudio.PyAudio()
+		print("Starting online listening")
 
-            stream = p.open(
-                format=pyaudio.paInt16, 
-                channels=1, 
-                rate=16000, 
-                input=True, 
-                frames_per_buffer=16000
-            )
-            stream.start_stream()
+		with self.__microphone as source:
+			self.__recogniser.adjust_for_ambient_noise(source)
+			if first_run:
+				await voice_output.say("I\'m listening you")
+			
+			audio = self.__recogniser.listen(source)
 
-            if empty_previous or first_run:
-                print(f"\n{"=" * 70}\n\nСлушаю тебя, дружище")
-                voice_output.say("I\'m listening")
+			try:
+				response["transcription"] = str(self.__recogniser.\
+					recognize_google(audio, language="ru-RU")).\
+						lower().replace("гарик ", "", 1)
+			except speech_recognition.RequestError:
+				response["success"] = False
+				response["error"] = "unavailable"
+			except speech_recognition.UnknownValueError:
+				response["success"] = False
+				response["error"] = "doesn\'t understand"
 
-            while True:
-                data = stream.read(16000)
+			return response
 
-                if rec.AcceptWaveform(data):
-                    return {
-                    "success": True,
-                    "error": None,
-                    "transcription": dict(json.loads(rec.FinalResult()))["text"]
-                }
+
+class OfflineVoiceInput(metaclass=MetaSingleton):
+	def __init__(self) -> None:
+		self.__model_path = "C:/Projects/Garik/Model/models/offline_recognition/vosk-model-small-ru-0.22"
+
+		SetLogLevel(-1)
+
+		self.__model = Model(self.__model_path)
+		self.__rec = KaldiRecognizer(self.__model, 16000)
+		self.__p = pyaudio.PyAudio()
+
+
+	async def listen(
+		self,
+		voice_output: Output,
+		first_run: bool = True
+	) -> dict[str, Any]:
+		stream = self.__p.open(
+			format=pyaudio.paInt16, 
+			channels=1, 
+			rate=16000, 
+			input=True, 
+			frames_per_buffer=16000
+		)
+		stream.start_stream()
+
+		print("Starting offline listening")
+
+		if first_run:
+			await voice_output.say("I\'m listening")
+
+		while True:
+			data = stream.read(16000)
+
+			if self.__rec.AcceptWaveform(data):
+				data: str = dict(json.loads(self.__rec.FinalResult()))["text"]
+
+				stream.close()
+
+				return {
+					"success": True,
+					"error": None,
+					"transcription": data.replace("гарик ", "", 1)
+				}
 
 class TextScriptRecogniser:
-    @overload
-    def read_script(self, text_script: list[str]) -> None:
-        self.__script = text_script
+	@overload
+	def read_script(self, text_script: list[str]) -> None:
+		self.__script = text_script
 
-    @overload
-    def read_script(self, file_path: str) -> None:
-        self.__script = open(
-            file_path,
-            'r',
-            encoding='"utf-8'
-        ).readlines()
+	@overload
+	def read_script(self, file_path: str) -> None:
+		self.__script = open(
+			file_path,
+			'r',
+			encoding='"utf-8'
+		).readlines()
 
-    @property
-    def script(self) -> list[str]:
-        return self.__script
+	@property
+	def script(self) -> list[str]:
+		return self.__script

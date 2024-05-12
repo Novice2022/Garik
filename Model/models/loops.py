@@ -1,9 +1,18 @@
-from abc import ABC, abstractmethod
-from os import system
+from abc import ABC
 from subprocess import check_output, CalledProcessError
 
+from datetime import datetime as dt
+
+from typing import Any
+
 from models.handlers.info import skills, how_to
-from voice import input, output
+# from models.scripting.main import Core
+
+from voice.interaction import VoiceInteraction
+
+from voice.input import OnlineVoiceInput, OfflineVoiceInput
+
+from voice.output import Output
 
 from models.handlers.handlers import (
 	AppStarter,
@@ -12,8 +21,6 @@ from models.handlers.handlers import (
 	MouseEmulator
 )
 
-from voice.output import Output
-from models.scripting.main import Core
 
 import json
 
@@ -23,28 +30,28 @@ class AbstractModel(ABC):
 		for (on/off)line models """
 
 	# @abstractmethod
-	def manage_command(self, command: str) -> None: ...
+	async def manage_command(self, command: str) -> None: ...
 
 	# @abstractmethod
-	def __run_application(
+	async def __run_application(
 		self,
 		application_name: str
 	) -> None: ...
 
 	# @abstractmethod
-	def __search(self, request: str) -> None: ...
+	async def __search(self, request: str) -> None: ...
 
 	# @abstractmethod
-	def __immitate_keyboard(self, data: str) -> None: ...
+	async def __immitate_keyboard(self, data: str) -> None: ...
 
 	# @abstractmethod
-	def __immitate_mouse(self, data: str) -> None: ...
+	async def __immitate_mouse(self, data: str) -> None: ...
+
+	# # @abstractmethod
+	# async def __execute_script(self, script: list[str]): ...
 
 	# @abstractmethod
-	def __execute_script(self, script: list[str]): ...
-
-	# @abstractmethod
-	def __close_garik(self, command: str) -> None: ...
+	def __close_garik(self) -> None: ...
 
 
 class TextModel(AbstractModel):
@@ -57,25 +64,28 @@ class TextModel(AbstractModel):
 		self.searcher = Searcher()
 		self.keyboard = KeyboardEmulator()
 		self.mouse = MouseEmulator()
-		self.voice_output = output.Output()
+		self.voice_output = Output()
 
 
-	def manage_command(self, command: str) -> None:
+	async def manage_command(self, command: str) -> None:
+		if command == "shutdown":
+			await self.__close_garik()
+
 		for action in (
 			self.__search,
 			self.__run_application,
 			self.__immitate_keyboard,
 			self.__immitate_mouse
 		):
-			result = action(command)
+			result = await action(command)
 			
 			if result:
 				return result
-		
-		self.__close_garik(command)
+
+		return "can't understand"
 
 
-	def __search(self, request: str) -> None:
+	async def __search(self, request: str) -> None:
 		for task in (
 			"открой",
 			"найди",
@@ -86,7 +96,7 @@ class TextModel(AbstractModel):
 				return self.searcher.search(request[len(task) + 1:])
 
 
-	def __run_application(
+	async def __run_application(
 		self,
 		application_name: str
 	) -> None:
@@ -94,12 +104,12 @@ class TextModel(AbstractModel):
 			"запусти",
 		):
 			if application_name.startswith(task):
-				return self.applications.start(
+				return await self.applications.start(
 					application_name.replace(f"{task} ", '', 1)
 				)
 	
 
-	def __immitate_keyboard(self, data: str) -> None:
+	async def __immitate_keyboard(self, data: str) -> None:
 		for task in ("напиши",
 			"перемести курсор на",
 			"скопируй",
@@ -118,7 +128,7 @@ class TextModel(AbstractModel):
 				return self.keyboard.emulate(task)
 	
 
-	def __immitate_mouse(self, data: str) -> None:
+	async def __immitate_mouse(self, data: str) -> None:
 		for task in (
 			"подними",
 			"опусти",
@@ -130,17 +140,14 @@ class TextModel(AbstractModel):
 				return self.mouse.emulate(task)
 	
 
-	def __execute_script(self, script: list[str]):
-		Core.execute(script)
+	# async def __execute_script(self, script: list[str]):
+	# 	Core.execute(script)
 
 
-	def __close_garik(self, command: str) -> None:
-		if command == "shutdown":
-			if LoopsManager.voice:
-				self.voice_output.say("See you later")
-
-			self.voice_output.exit()
-			exit()
+	async def __close_garik(self) -> None:
+		await self.voice_output.say("See you later")
+		await self.voice_output.exit()
+		exit()
 	
 
 	def __str__(self) -> str:
@@ -148,104 +155,104 @@ class TextModel(AbstractModel):
 
 
 class OfflineVoiceModel(TextModel):
+	def __init__(self) -> None:
+		self.input = OfflineVoiceInput()
+		self._activate()
+
+
 	def _activate(self) -> None:
 		return super()._activate()
 
 
-	def manage_command(self, command: str) -> None:
-		return super().manage_command(command)
+	async def manage_command(self, command: str) -> None:
+		return await super().manage_command(command)
 
 
-	@staticmethod
-	def listen(
+	async def listen(
+		self,
 		voice_output: Output,
-		previous_empty: bool = False,
 		first_run: bool = True
-	) -> str:
-		if previous_empty:
-			print("Перевожу (самостоятельно)")
-		return input.OfflineVoiceInput.listen(
+	) -> dict[str, Any]:
+		return await self.input.listen(
 			voice_output,
-			previous_empty
+			first_run
 		)
 	
-	def __search(self, request: str) -> None:
-		return super().__search(request)
+	async def __search(self, request: str) -> None:
+		return await super().__search(request)
 	
 
-	def __run_application(self, application_name: str) -> None:
-		return super().__run_application(application_name)
+	async def __run_application(self, application_name: str) -> None:
+		return await super().__run_application(application_name)
 	
 
-	def __immitate_keyboard(self, data: str) -> None:
-		return super().__immitate_keyboard(data)
+	async def __immitate_keyboard(self, data: str) -> None:
+		return await super().__immitate_keyboard(data)
 	
 
-	def __immitate_mouse(self, data: str) -> None:
-		return super().__immitate_mouse(data)
+	async def __immitate_mouse(self, data: str) -> None:
+		return await super().__immitate_mouse(data)
 	
 
-	def __execute_script(self, script: list[str]):
-		return super().__execute_script(script)
+	# async def __execute_script(self, script: list[str]):
+	# 	return await super().__execute_script(script)
 	
 
-	def __close_garik(self, command: str) -> None:
-		return super().__close_garik(command)
+	async def __close_garik(self) -> None:
+		return await super().__close_garik()
 
 
 	def __str__(self) -> str:
 		return "OfflineVoiceModel"
 
 
-class OnlineVoiceModel(TextModel):
+class OnlineVoiceModel(OfflineVoiceModel):
 	def __init__(self) -> None:
+		self.input = OnlineVoiceInput()
 		self._activate()
 
 
 	def _activate(self) -> None:
-		super()._activate()
+		return super()._activate()
+	
 
-
-	@staticmethod
-	def listen(
+	async def listen(
+		self,
 		voice_output: Output,
-		previous_empty: bool = False,
 		first_run: bool = True
-	) -> str:
-		if previous_empty:
-			print("Перевожу (с помощью google API)")
-		return input.OfflineVoiceInput.listen(
+	) -> dict[str, Any]:
+		return await super().listen(
 			voice_output,
-			previous_empty
+			first_run
 		)
 	
 
-	def manage_command(self, command: str) -> None:
-		return super().manage_command(command)
+	async def manage_command(self, command: str) -> None:
+		return await super().manage_command(command)
 
 
-	def __search(self, request: str) -> None:
-		return super().__search(request)
+	async def __search(self, request: str) -> None:
+		return await super().__search(request)
 	
 
-	def __run_application(self, application_name: str) -> None:
-		return super().__run_application(application_name)
+	async def __run_application(self, application_name: str) -> None:
+		return await super().__run_application(application_name)
 	
 
-	def __immitate_keyboard(self, data: str) -> None:
-		return super().__immitate_keyboard(data)
+	async def __immitate_keyboard(self, data: str) -> None:
+		return await super().__immitate_keyboard(data)
 
 
-	def __immitate_mouse(self, data: str) -> None:
-		return super().__immitate_mouse(data)
+	async def __immitate_mouse(self, data: str) -> None:
+		return await super().__immitate_mouse(data)
 	
 
-	def __execute_script(self, script: list[str]):
-		return super().__execute_script(script)
+	# async def __execute_script(self, script: list[str]):
+	# 	return await super().__execute_script(script)
 	
 
-	def __close_garik(self, command: str) -> None:
-		return super().__close_garik(command)
+	async def __close_garik(self) -> None:
+		return await super().__close_garik()
 	
 
 	def __str__(self) -> str:
@@ -253,9 +260,6 @@ class OnlineVoiceModel(TextModel):
 
 
 class LoopsManager:
-	voice: bool = True  # default
-
-
 	def __init__(self) -> None:
 		self.models: dict[
 			str,
@@ -267,131 +271,60 @@ class LoopsManager:
 			},
 			"text": TextModel()
 		}
-
-		self.__settings = self.__get_settings()
-		LoopsManager.voice = self.__settings.get("voice") == "True"
-		self.__fast_recognition = self.__settings.get("fast-recognition")
-
+		self.output_voice = Output()
 		self.first_run = True
-		self.previous_empty = False
-	
 
-	def __get_settings(self) -> dict[str, str | dict[str, str]]:
-		with open(
-			"C:/Projects/Garik/Model/user_settings.json",
-			mode='r',
-			encoding='utf-8'
-		) as settings:
-			return json.load(settings)
-		
-
-	def __sync_settings(self) -> None:
-		LoopsManager.voice = self.__settings.get("voice") == "True"
-		self.__fast_recognition = \
-			self.__settings.get("fast-recognition") == "True" 
-
-
-	def __save_settings(self) -> None:
-		with open(
-			"C:/Projects/Garik/Model/user_settings.json",
-			mode='w',
-			encoding='utf-8'
-		) as file:
-			json.dump(self.__settings, file)
-
-	"""
-	# def _switch_model(
-	# 	self,
-	# 	new_model_name: Literal["text", "voice-online", "voice-offline"]
-	# ) -> None:
-	# 	self.garik_info.switch_status()
-
-	# 	if self.state == "online":
-	# 		self.current_model = OfflineVoiceModel()
-	# 		self.state = "offline"
-	# 		self.current_model.__activate(self.output_voice)
-
-	# 		return self.output_voice.say(
-	# 			f"Mode switched to {self.state} successfuly"
-	# 		)
-		
-	# 	self.current_model = OnlineVoiceModel()
-	# 	self.state = "online"
-	# 	self.current_model.__activate(self.output_voice)
-		
-	# 	self.output_voice.say(
-	# 		f"Mode switched to {self.state} successfuly"
-	# 	)
-
-	# 	self.first_run = True
-	"""
-	
 
 	@staticmethod
-	def _get_internet_connection_status() -> bool:
-		try:
-			return any([
-				check_output(
-					'ping -n 1 -w 1000 142.251.40.164',
+	async def _get_internet_connection_status() -> bool:
+		responses = []
+
+		for IP in (
+			"142.251.40.164",
+			"104.21.54.180",
+			"5.255.255.242"
+		):
+			try:
+				responses.append("(0% " in check_output(
+					f'ping -n 1 -w 500 {IP}',
 					shell=True,
 					encoding=str(
 						check_output('chcp', shell=True)
 					).split(':')[-1][1:].split('\\')[0]
-				).count("= 1") == 2,
-				check_output(
-					'ping -n 1 -w 1000 104.21.54.180',
-					shell=True,
-					encoding=str(
-						check_output('chcp', shell=True)
-					).split(':')[-1][1:].split('\\')[0]
-				).count("= 1") == 2,
-				check_output(
-					'ping -n 1 -w 1000 5.255.255.242',
-					shell=True,
-					encoding=str(
-						check_output('chcp', shell=True)
-					).split(':')[-1][1:].split('\\')[0]
-				).count("= 1") == 2
-			])
-		except CalledProcessError:
-			return False
+				))
+			except CalledProcessError as CPE:
+				responses.append(False)
+
+		return any(responses)
 	
 
-	def __process_voice_model(self) -> str:
-		response = ""
-
+	async def __process_voice_model(self) -> str:
 		current_model: OnlineVoiceModel | OfflineVoiceModel = None
 
-		if (
-			LoopsManager._get_internet_connection_status() and \
-			self.__fast_recognition != "True"
-		):
-			current_model = self.models["voice"]["online"]
-		else:
+		fast_recognition_state =\
+			VoiceInteraction.get_fast_recognition()
+		inet_connection =\
+			await LoopsManager._get_internet_connection_status()
+
+		if (fast_recognition_state or not inet_connection):
 			current_model = self.models["voice"]["offline"]
-		
-		print(f"{self.previous_empty = }")
-		voice = current_model.listen(
+		else:
+			current_model = self.models["voice"]["online"]
+
+		voice = await current_model.listen(
 			self.output_voice,
-			self.previous_empty,
 			self.first_run
 		)
 
 		self.first_run = False
-
-		if self.previous_empty:
-			print(f"{voice["transcription"] = }")
 		
 		if voice["success"]:
-			self.previous_empty = bool(voice["transcription"])
-
 			if voice["transcription"].startswith((
 				"что ты умеешь",
 				"что ты можешь",
 				"..."
 			)):
-				response = skills
-				print(response)
+				return f"{voice["transcription"]} ~ {skills}"
 			elif voice["transcription"].startswith((
 				"список команд",
 				"что тебе говорить",
@@ -399,33 +332,34 @@ class LoopsManager:
 				"как с тобой разговаривать",
 				"..."
 			)):
-				response = how_to
-				print(response)
+				return f"{voice["transcription"]} ~ {how_to}"
+			elif voice["transcription"] in (
+				"прислушивайся",
+				"работаем",
+				"слушай пока не остановлю"
+			):
+				print("Listening until stop")
+				return f"{voice["transcription"]} ~ listening-until-stop"
+			elif voice["transcription"] in (
+				"отдыхай"
+			):
+				print("Stop listen")
+				return f"{voice["transcription"]} ~ stop-listen"
 			else:
-				current_model.\
+				result = await current_model.\
 					manage_command(voice["transcription"])
-				response = f"Выполняю следующую команду: {
-						voice["transcription"]}"
+				return f"{voice["transcription"]} ~ {result}"
 		else:
-			if LoopsManager.voice:
-				self.output_voice.say(
-					f"Online recogniser doesn\'t work because of {
-					voice["error"]}"
-				)
-
-			print(
-				f"Online recogniser doesn\'t work because of {
+			error_text = f"Online recogniser doesn\'t work because of {
 				voice["error"]}"
-			)
+			
+			await self.output_voice.say(error_text)
 
-			response = f"Catched error: {voice["error"]}"
-		
-		print(f"Sending response: {response}")
-		return response
-	
+			return f"voice-error {voice['error']}"
 
-	def __process_text_model(self, text: str) -> str:
-		return self.models["text"].manage_command(text)
+
+	async def __process_text_model(self, text: str) -> str:
+		return await self.models["text"].manage_command(text)
 
 
 	def __customise(
@@ -433,36 +367,69 @@ class LoopsManager:
 		target: str
 	) -> str:
 		"""
-		switch:
+		* switch:
 			- switch to opposite voice model (online or offline)
-
-		voice:
+		* voice:
 			- on/off Garik's voice
+		* add-app <name> <path>:
+			- add application to applications.json file
 		"""
 
-		if target == "switch":
-			self.__settings["fast-recognition"] = \
-				str(not self.__fast_recognition)
-		else:
-			self.__settings["voice"] = str(not self.voice)
+		if target in ("switch", "voice"):
+			VoiceInteraction.switch_voice_setting(target)
+		elif target.startswith("add-app"):
+			json_file_path = "C:/Projects/Garik/Model/applications.json"
 
-		self.__sync_settings()
-		self.__save_settings()
+			programs: dict[str, str] = {}
 
-		return f'customise ok {self.__fast_recognition} {self.voice}'
+			with open(json_file_path, encoding="utf-8", mode='r') as file:
+				programs = json.load(file)
+
+			new_app_info = target[8:].split(" ~ ")
+
+			programs[new_app_info[0]] =\
+				f"\"{new_app_info[1].replace("\\", "/")}\""
+
+			with open(
+				json_file_path,
+				encoding="utf-8",
+				mode='w'
+			) as file:
+				json.dump(
+					obj=programs,
+					fp=file,
+					indent=4,
+					ensure_ascii=False
+				)
+				AppStarter.update()
+				return f"customise ok add-app {
+					new_app_info[0]} {new_app_info[1]}"
+
+		return f"customise ok {\
+			VoiceInteraction.get_fast_recognition()} {\
+				VoiceInteraction.get_voice()}"
 
 
-	async def processing_method(self, command: str) -> str:
+	async def processing_method(
+		self,
+		command: str,
+		message_owner: str = ""
+	) -> str:
 		if command == "shutdown":
-			self.__process_text_model(command)
+			await self.__process_text_model(command)
 			return
 
 		if command.startswith("listen"):
-			print(f"[log]\tlisten")
-			return self.__process_voice_model()
+			print(f"[out -> {message_owner}]\t<{\
+				dt.now()}>\t[listen]\t")
+			return await self.__process_voice_model()
 		elif command.startswith("text"):
-			print(f"[log]:[text]\t{command}")
-			return self.__process_text_model(command[5:])
+			print(f"[out -> {message_owner}]\t<{\
+				dt.now()}>\t[text]\t{command[5:]}")
+			return await self.__process_text_model(command[5:])
 		elif command.startswith("custom"):
-			print(f"[log]\tcustomise: {command[7:].split()}")
-			return self.__customise(*command[7:].split())
+			print(f"[out -> {message_owner}]\t<{\
+				dt.now()}>\t[customise]\t{command[7:]}")
+			return self.__customise(command[7:])
+		
+		return "can't understand"

@@ -1,10 +1,6 @@
 from typing import Coroutine
 import asyncio
-from notifypy import Notify
-
-
-# def send_message(title: str = "", message: str = "") -> None:
-# 	Notify().send_notification(supplied_title=title, message=message)
+from datetime import datetime as dt
 
 
 class ServerSocket:
@@ -27,29 +23,41 @@ class ServerSocket:
 			bytes_message = await reader.read(512)
 			message = bytes_message.decode(encoding="utf-8")
 
-			log_message = f"{message} from {writer.get_extra_info('peername')}" if message != "красный" else ""
+			message_owner = writer.get_extra_info('peername')
 
-			print(log_message)
+			print(
+				f"[in <-- {message_owner}]\t<{dt.now()}>\t{\
+					message + '\t' if message == "listen"\
+						else message}" if message != "красный" else ""
+			)
 
-			process_result = await self.__processing_method(message)
+			process_result = await self.__processing_method(
+				message,
+				message_owner
+			)
 
 			writer.write(process_result.encode(encoding="utf-8"))
 
 			await writer.drain()
 			writer.close()
 		except OSError:
-			print("Excepting \"OSError: [WinError 64]\" - Client process closed")
+			print(
+				"Excepting \"OSError: [WinError 64]\" - Client process closed"
+			)
+			await self.__processing_method("shutdown")
+		except AttributeError:
+			await self.__processing_method("shutdown")
 
 
 	async def serve(self) -> None:
 		self.__server = await asyncio.start_server(
 			self.__async_processing,
-			'127.0.0.1',
+			"127.0.0.1",
 			8888
 		)
 
 		addr = self.__server.sockets[0].getsockname()
-		print(f'Serving on {addr}')
+		print(f"[finish_init]\t<{dt.now()}>\tServing on {addr}")
 
 		async with self.__server:
 			await self.__server.serve_forever()

@@ -1,0 +1,18 @@
+{
+    "блокнот": "notepad",
+    "notepad": "notepad",
+    "командная строка": "%windir%/system32/cmd.exe",
+    "командную строку": "%windir%/system32/cmd.exe",
+    "яндекс": "C:/Users/zabig/AppData/Local/Yandex/YandexBrowser/Application/browser https://www.yandex.ru",
+    "yandex": "C:/Users/zabig/AppData/Local/Yandex/YandexBrowser/Application/browser https://www.yandex.ru",
+    "вижуал студио код": "\"C:/Work Tools/Microsoft VS Code/Code\"",
+    "visual studio code": "\"C:/Work Tools/Microsoft VS Code/Code\"",
+    "vsc": "\"C:/Work Tools/Microsoft VS Code/Code\"",
+    "vs code": "\"C:/Work Tools/Microsoft VS Code/Code\"",
+    "вижуал студио": "\"C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/devenv\"",
+    "visual studio": "\"C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/devenv\"",
+    "vs": "\"C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/devenv\"",
+    "телеграм": "\"C:\\Messengers\\Telegram Desktop\\Telegram.exe\"",
+    "леста": "\"C:/Games/Lesta/GameCenter/lgc.exe\"",
+    "лесту": "\"C:/Games/Lesta/GameCenter/lgc.exe\""
+}

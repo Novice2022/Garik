@@ -13,29 +13,23 @@ namespace Garik.Backend
         async public Task<string> SendMessage(string message)
         {
             //MessageBox.Show($"\'{message}\'");
+            string responseMessage;
 
-            TcpClient client = new TcpClient();
-            await client.ConnectAsync(serverAddress, port);
-            NetworkStream stream = client.GetStream();
+            using (TcpClient client = new TcpClient())
+            {
+                await client.ConnectAsync(serverAddress, port);
+                NetworkStream stream = client.GetStream();
 
-            byte[] data = Encoding.UTF8.GetBytes(message);
+                byte[] data = Encoding.UTF8.GetBytes(message);
 
-            await stream.WriteAsync(data, 0, data.Length);
+                await stream.WriteAsync(data, 0, data.Length);
 
-            byte[] responseData = new byte[1024];
-            int bytesRead = await stream.ReadAsync(responseData, 0, responseData.Length);
-            string responseMessage = Encoding.UTF8.GetString(responseData, 0, bytesRead);
+                byte[] responseData = new byte[1024];
+                int bytesRead = await stream.ReadAsync(responseData, 0, responseData.Length);
+                responseMessage = Encoding.UTF8.GetString(responseData, 0, bytesRead);
+            }
 
-            client.Close();
-
-            string result = await handleResponse(responseMessage);
-
-            return result;
-        }
-
-        async private Task<string> handleResponse(string response)
-        {
-            return $"Received: {response}";
+            return responseMessage;
         }
     }
 }
