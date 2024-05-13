@@ -10,7 +10,7 @@ namespace Garik.Backend
 
 		public DataBase()
 		{
-			string connString = "Host=127.0.0.1;Username=postgres;Password=VPS-Ser;Database=garik";
+			string connString = "Host=127.0.0.1;Username=postgres;Password=password;Database=garik";  // Reset password here!
 			connection = new NpgsqlConnection(connString);
 			connection.Open();
 		}
@@ -36,12 +36,12 @@ namespace Garik.Backend
 			return result;
 		}
 
-		public void InsertMessage(string content, bool fromClient, string handlingModelType, int responseForMessageID)
+		public void InsertMessage(int messageIndex, string content, bool fromClient, string handlingModelType, int responseForMessageID)
 		{
 			content = content.Replace("'", "''");
 			using (
 				var cmd = new NpgsqlCommand(
-					$"INSERT INTO messages (message_content, from_client, handling_model_type, response_for_message_id) VALUES ('{content}', {fromClient}, '{handlingModelType}', {responseForMessageID})",
+					$"INSERT INTO messages (message_id, message_content, from_client, handling_model_type, response_for_message_id) VALUES ({messageIndex}, '{content}', {fromClient}, '{handlingModelType}', {responseForMessageID})",
 					connection
 				)
 			)
@@ -57,13 +57,6 @@ namespace Garik.Backend
 				)
 			)
 				cmd.ExecuteNonQuery();
-		}
-
-		public Dictionary<string, string> GetSettings()  // TODO: read settings table and convert tuples to dict<str, str>
-		{
-			Dictionary<string, string> settings = new Dictionary<string, string>();
-
-			return settings;
 		}
 
 		public void CloseConnection() { connection.Close(); }

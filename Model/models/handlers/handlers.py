@@ -6,7 +6,8 @@ import json
 
 from .text_analysers import (
 	normalise_punctuation,
-	hot_keys
+	hot_keys,
+	to_integer
 )
 
 
@@ -63,61 +64,69 @@ class Searcher:
 
 
 class KeyboardEmulator:
-	def emulate(self, command: str) -> None:
-		if command.startswith("перемести курсор на "):
-			KeyboardEmulator._move_cursor(command[22:])
-		elif command.startswith(("введи", "напиши")):
+	async def emulate(self, command: str) -> None:
+		if command.lower().startswith(("введи", "напиши")):
 			for task in ("введи", "напиши"):
-				if command.startswith(task):
-					KeyboardEmulator._enter_text(
-						command[len(task) + 1:]
+				if command.lower().startswith(task):
+					await KeyboardEmulator._enter_text(
+						command[len(task) + 1:],
 					)
-		elif command.startswith("выдели все"):
-			KeyboardEmulator._select_all()
-		elif command.startswith("скопируй"):
-			self._copy_selected()
-		elif command.startswith("вырежи"):
-			self._cut_selected()
-		elif command.startswith("вставь"):
-			self._paste()
-		elif command.startswith("верни"):
-			KeyboardEmulator._turn_back()
-		elif command.startswith("сохрани"):
-			KeyboardEmulator._save()
-			print("Сохранил")
-		elif command.startswith("нажми"):
-			KeyboardEmulator._press(command[6:])
-		elif command.startswith("сотри", "удали"):
-			KeyboardEmulator._delete()
+		else:
+			command = command.lower()
+			if command.startswith("перемести курсор на "):
+				await KeyboardEmulator._move_cursor(command[22:])
+			elif command.startswith("выдели все"):
+				await KeyboardEmulator._select_all()
+			elif command.startswith("скопируй"):
+				await KeyboardEmulator._copy_selected()
+			elif command.startswith("вырежи"):
+				await KeyboardEmulator._cut_selected()
+			elif command.startswith((
+				"вставь",
+				"помести"
+			)):
+				await KeyboardEmulator._paste()
+			elif command.startswith("верни"):
+				await KeyboardEmulator._turn_back()
+			elif command.startswith("сохрани"):
+				await KeyboardEmulator._save()
+			elif command.startswith("нажми"):
+				await KeyboardEmulator._press(command[6:])
+			elif command.startswith((
+				"сотри",
+				"удали"
+			)):
+				await KeyboardEmulator._delete()
+		
+		return f"Выполнил: \"{command}\""
 
 	@staticmethod
-	def _enter_text(text: str) -> None:
+	async def _enter_text(text: str) -> None:
 		pyperclip.copy(normalise_punctuation(text))
 		keyboard.press_and_release("ctrl + v")
 
 	@staticmethod
-	def _cut_selected() -> None:
-		keyboard.press_and_release("ctrl + c")
-		keyboard.press_and_release("\b")
+	async def _cut_selected() -> None:
+		keyboard.press_and_release("ctrl + x")
 
 	@staticmethod
-	def _copy_selected() -> None:
+	async def _copy_selected() -> None:
 		keyboard.press_and_release("ctrl + c")
 	
 	@staticmethod
-	def _select_all() -> None:
+	async def _select_all() -> None:
 		keyboard.press_and_release("ctrl + a")
 	
 	@staticmethod
-	def _turn_back() -> None:
+	async def _turn_back() -> None:
 		keyboard.press_and_release("ctrl + z")
 
 	@staticmethod
-	def _press(command: str) -> None:
+	async def _press(command: str) -> None:
 		keyboard.press_and_release(hot_keys(command))
 
 	@staticmethod
-	def _move_cursor(command: str) -> None:
+	async def _move_cursor(command: str) -> None:
 		if command.startswith(("вверх")):
 			pyautogui.press("up")
 		elif command.startswith(("направо", "вправо")):
@@ -128,68 +137,137 @@ class KeyboardEmulator:
 			pyautogui.press("left")
 
 	@staticmethod
-	def _save() -> None:
+	async def _save() -> None:
 		keyboard.press_and_release("ctrl + s")
 	
 	@staticmethod
-	def _paste() -> None:
+	async def _paste() -> None:
 		keyboard.press_and_release("ctrl + v")
 	
 	@staticmethod
-	def _delete():
+	async def _delete():
 		keyboard.press_and_release("\b")
 	
 
 class MouseEmulator:
-	def emulate(self, command: str) -> None:
-		if command.startswith("подвинь мышку на "):
-			MouseEmulator._move_cursor(
-				command[18:]
-			)
+	async def emulate(self, command: str) -> None:
+		if command.startswith((
+			"подвинь мышку",
+			"сдвинь мышку",
+			"подними мышку",
+			"опусти мышку"
+		)):
+			"""
+			command pattern:
+
+			подвинь or
+			сдвинь  or
+			подними or
+			опусти
+				мышку <orientation> [на] <number> [пикселей]
+
+			"""
+
+			for task in (
+				"подвинь мышку ",
+				"сдвинь мышку ",
+				"подними мышку ",
+				"опусти мышку "
+			):
+				if command.startswith(task):
+					orientation = ""
+
+					if command.startswith("подними мышку "):
+						orientation = "вверх"
+					elif command.startswith("опусти мышку "):
+						orientation = "вниз"
+
+					await MouseEmulator._move_cursor(
+						command.replace(task, "", 1)\
+							.replace("на ", "", 1),
+						orientation
+					)
 		elif command.startswith(
 			("опусти", "подними")
 		):
-			for task in ("опусти", "подними"):
-				if (command.startswith(task)):
-					MouseEmulator._scroll_window(
-						task[len(task) + 1:]
+			for task in ("опусти ", "подними "):
+				if command.startswith(task):
+					await MouseEmulator._scroll_window(
+						command.replace(task, "", 1)
 					)
 		elif command.startswith("кликни"):
-			print(f"кликаю: {command[7:]}")
-			MouseEmulator._click(command[7:])
+			await MouseEmulator._click(
+				command.replace("кликни", "", 1)
+			)
+
+		return f"Выполнил: \"{command}\""
 
 	@staticmethod
-	def _move_cursor(data: str) -> None:
+	async def _move_cursor(
+		data: str,
+		orientation: str
+	) -> None:
+		if "пикс" in data:
+			data = ' '.join(data.split()[:-1])
+
+		if orientation != "":
+			data = data.replace("наверх ", "", 1)\
+                .replace("вверх ", "", 1)\
+                .replace("вниз ", "", 1)
+
 		orientations = {
 			"наверх": (0, -1),
+			"вверх": (0, -1),
 			"направо": (1, 0),
+			"вправо": (1, 0),
 			"вниз": (0, 1),
-			"налево": (-1, 0)
+			"налево": (-1, 0),
+			"влево": (-1, 0)
 		}
 
-		forces = {
-			"слабо": 25,
-			"средне": 350,
-			"сильно": 700
-		}
+		orientation = data[ : data.index(" ")]\
+			if orientation == "" else orientation
 
-		orientation, force = data.split(' ')
+		value_as_words = data
 
-		coords = (coord * forces.get(force) for coord in \
-				orientations.get(orientation))
+		if any([
+			axis in data for axis in\
+				orientations.keys()
+		]):
+			value_as_words = ' '.join(data.split()[1:])
 
-		pyautogui.moveRel(
-			*(coord * forces.get(force) for coord in \
-				orientations.get(orientation))
-		)
+		value_as_number = to_integer(value_as_words)
+
+		move_vector = [
+			value_as_number * coord\
+				for coord in orientations\
+					.get(orientation)
+		]
+
+		pyautogui.moveRel(*move_vector)
 
 	@staticmethod
-	def _scroll_window(clicks: int) -> None:
+	async def _scroll_window(clicks: int) -> None:
 		pyautogui.scroll(clicks)
 
 	@staticmethod
-	def _click(command: str) -> None:
-		if command == "левой":
-			pyautogui.click(button="left")
-		elif command == "правой":
-			pyautogui.click(button="right")
+	async def _click(command: str) -> None:
+		command = command.split()[:-1] if\
+			"раз" in command else command
+
+		if "правой" in command:
+			command = command.replace(
+                "правой ", "", 1
+            )
+			button = "right"
+		else:
+			command = command.replace(
+				"левой ", "", 1
+			)
+			button = "left"
+		
+		amount = 1 if command == ""\
+			else to_integer(command)
+
+		for _ in range(to_integer(amount)):
+			pyautogui.click(button=button)

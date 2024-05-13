@@ -163,7 +163,7 @@ namespace Garik.ViewModels
 			process.StartInfo.FileName = "python";
 			process.StartInfo.Arguments = "C:/Projects/Garik/Model/manager.py start";
 			process.StartInfo.UseShellExecute = true;
-			// process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+			process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
 
 			process.Start();
 			Thread.Sleep(2500);
@@ -214,7 +214,7 @@ namespace Garik.ViewModels
 			{
 				lastMessageIndex++;
 
-				Messages.Last().MarginBottom = "0";
+				// Messages.Last().MarginBottom = "0";
 				Messages.Add(
 					new Message(
 						lastMessageIndex,
@@ -226,7 +226,7 @@ namespace Garik.ViewModels
 					)
 				);
 				Messages.Last().MarginBottom = "10";
-				database.InsertMessage(inputContent, true, "text", -1);
+				database.InsertMessage(lastMessageIndex, inputContent, true, "text", -1);
 
 				string responseMessage = await client.SendMessage($"{parameter} {inputContent}");
 				InputContent = "";
@@ -278,7 +278,7 @@ namespace Garik.ViewModels
 									)
 								);
 								Messages.Last().MarginBottom = "10";
-								database.InsertMessage(voiceRequest, true, "voice", -1);
+								database.InsertMessage(lastMessageIndex, voiceRequest, true, "voice", -1);
 
                                 await handleResponse(responseMessage);
 								break;
@@ -324,6 +324,7 @@ namespace Garik.ViewModels
 				response = $"Нашёл для Вас: {response.Substring(10)}";
 
 			lastMessageIndex++;
+			database.InsertMessage(lastMessageIndex, response, false, "text", lastMessageIndex - 1);
 
 			Messages.Last().MarginBottom = "0";
 			Messages.Add(
@@ -337,8 +338,6 @@ namespace Garik.ViewModels
 				)
 			);
 			Messages.Last().MarginBottom = "10";
-
-			database.InsertMessage(response, false, "text", lastMessageIndex - 1);
 		}
 
 
@@ -352,9 +351,6 @@ namespace Garik.ViewModels
 					{
 						database.SetDefaultHistory();
 						Messages.Clear();
-
-						foreach (var message in database.SelectMessages())
-							Messages.Add(message);
 
 						lastMessageIndex = 4;
 					}));

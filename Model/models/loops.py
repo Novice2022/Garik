@@ -68,8 +68,91 @@ class TextModel(AbstractModel):
 
 
 	async def manage_command(self, command: str) -> None:
+
 		if command == "shutdown":
 			await self.__close_garik()
+
+		introductions = (
+			"привет, ",
+			"привет ",
+
+			"гарик, ",
+			"гарик ",
+
+			"ок, а ",
+			"ок а",
+			"ок, ",
+			"ок ",
+
+			"хорошо, а ",
+			"хорошо а",
+			"хорошо, ",
+			"хорошо ",
+
+			"ладно, а ",
+			"ладно а",
+			"ладно, ",
+			"ладно "
+		)
+
+		while any([
+			introduction in command.lower() for\
+				introduction in introductions
+		]):
+			for introduction in introductions:
+				command = command\
+					.replace(introduction, "", 1)\
+					.replace(introduction.title(), "", 1)
+
+		for introduction in (
+			"привет, ",
+			"привет ",
+			"гарик, ",
+			"гарик"
+		):
+			if command.lower().startswith(introduction):
+				command = command.replace(introduction, "", 1)
+		
+		if not command.startswith((
+			"нажми",
+			"введи",
+			"напиши"
+		)):
+			conclutions = (
+				"!",
+				"?",
+				".",
+				"...",
+				" ",
+				",",
+				")",
+				"(",
+				":",
+				";",
+				"*",
+				";"
+			)
+
+			while any([
+				command.endswith(conclution) for\
+					conclution in conclutions
+			]):
+				for conclution in conclutions:
+					command = command.removesuffix(conclution)
+
+
+		if command.lower().startswith((
+			"что ты умеешь",
+			"что ты можешь"
+		)):
+			return skills
+		elif command.lower().startswith((
+			"список команд",
+			"что тебе говорить",
+			"как тобой",
+			"как с тобой"
+		)):
+			return how_to
 
 		for action in (
 			self.__search,
@@ -92,7 +175,7 @@ class TextModel(AbstractModel):
 			"включи",
 			"покажи"
 		):
-			if request.startswith(task):
+			if request.lower().startswith(task):
 				return self.searcher.search(request[len(task) + 1:])
 
 
@@ -103,18 +186,19 @@ class TextModel(AbstractModel):
 		for task in (
 			"запусти",
 		):
-			if application_name.startswith(task):
+			if application_name.lower().startswith(task):
 				return await self.applications.start(
-					application_name.replace(f"{task} ", '', 1)
+					application_name[len(task) + 1:]
 				)
 	
 
 	async def __immitate_keyboard(self, data: str) -> None:
 		for task in ("напиши",
-			"перемести курсор на",
+			"перемести курсор",
 			"скопируй",
 			"вырежи",
 			"вставь",
+			"помести",
 			"нажми",
 			"введи",
 			"напиши",
@@ -124,20 +208,21 @@ class TextModel(AbstractModel):
 			"верни",
 			"сотри"
 		):
-			if data.startswith(task):
-				return self.keyboard.emulate(task)
+			if data.lower().startswith(task):
+				print(f"In __immitate_keyboard: {data}")
+				return await self.keyboard.emulate(data)
 	
 
 	async def __immitate_mouse(self, data: str) -> None:
 		for task in (
 			"подними",
 			"опусти",
-			"перемести мышку",
-			"кликни",
-			"..."
+			"подвинь мышку",
+			"сдвинь мышку",
+			"кликни"
 		):
-			if data.startswith(task):
-				return self.mouse.emulate(task)
+			if data.lower().startswith(task):
+				return await self.mouse.emulate(data.lower())
 	
 
 	# async def __execute_script(self, script: list[str]):
@@ -321,16 +406,14 @@ class LoopsManager:
 		if voice["success"]:
 			if voice["transcription"].startswith((
 				"что ты умеешь",
-				"что ты можешь",
-				"..."
+				"что ты можешь"
 			)):
 				return f"{voice["transcription"]} ~ {skills}"
 			elif voice["transcription"].startswith((
 				"список команд",
 				"что тебе говорить",
-				"как с тобой говорить",
-				"как с тобой разговаривать",
-				"..."
+				"как тобой",
+				"как с тобой"
 			)):
 				return f"{voice["transcription"]} ~ {how_to}"
 			elif voice["transcription"] in (

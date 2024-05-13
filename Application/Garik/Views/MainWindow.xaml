@@ -3,7 +3,6 @@
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		xmlns:local="clr-namespace:Garik"
 		xmlns:vm="clr-namespace:Garik.ViewModels" d:DataContext="{d:DesignInstance Type=vm:ViewModel}"
 		mc:Ignorable="d"
 		Height="551"
@@ -47,7 +46,7 @@
 				<ColumnDefinition Width="50"/>
 			</Grid.ColumnDefinitions>
 
-			<Button Command="{Binding ClearHistory}" Padding="2.5" Background="Transparent" BorderThickness="0">
+            <Button Command="{Binding ClearHistory}" Padding="2.5" Background="Transparent" BorderThickness="0" ToolTip="By Garik - https://github.com/Novice2022">
 				<StackPanel Orientation="Horizontal">
 					<Image Source="C:\Projects\Garik\Application\Garik\Resources\Logos\user-circle.png"/>
 				</StackPanel>
@@ -151,7 +150,7 @@
 													<ColumnDefinition Width="3px"/>
 												</Grid.ColumnDefinitions>
 
-												<TextBlock Margin="5" Grid.Column="1" Grid.Row="1" Text="{Binding Content, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>
+                                                <TextBlock Margin="5" Grid.Column="1" Grid.Row="1" FontSize="10" FontFamily="JetBrains Mono" Text="{Binding Content, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"/>
 												<Border Grid.Row="2" BorderBrush="White"/>
 
 												<Grid Grid.Column="1" Grid.Row="3">

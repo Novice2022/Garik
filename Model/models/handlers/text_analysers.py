@@ -115,3 +115,83 @@ def hot_keys(data: str) -> str:
             return "^"
         case "обратная кавычка":
             return "`"
+
+def to_integer(string: str) -> int:
+    if string == "":
+        return 0
+    if string.isdigit():
+        return int(string)
+
+    values = {
+        "один": 1,
+        "два": 2,
+        "три": 3,
+        "четыре": 4,
+        "пять": 5,
+        "шесть": 6,
+        "семь": 7,
+        "восемь": 8,
+        "девять": 9,
+
+        "десять": 10,
+        "одиннадцать": 11,
+        "двенадцать": 12,
+        "тринадцать": 13,
+        "четырнадцать": 14,
+        "пятнадцать": 15,
+        "шестнадцать": 16,
+        "семнадцать": 17,
+        "восемнадцать": 18,
+        "девятнадцать": 19,
+        
+        "двадцать": 20,
+        "тридцать": 30,
+        "сорок": 40,
+        "пятьдесят": 50,
+        "шестьдесят": 60,
+        "семьдесят": 70,
+        "восемьдесят": 80,
+        "девяносто": 90,
+        
+        "сто": 100,
+        "двести": 200,
+        "триста": 300,
+        "четыреста": 400,
+        "пятьсот": 500,
+        "шестьсот": 600,
+        "семьсот": 700,
+        "восемьсот": 800,
+        "девятьсот": 900
+    }
+    
+    def get_up_to_thousands(substring: str) -> int:
+        return sum([
+            values.get(number_word)\
+                for number_word in substring.split()
+        ])
+
+    summa = 0
+
+    for thousands_degree in (
+        ("миллиард", 1_000_000_000),
+        ("миллион", 1_000_000),
+        ("тысяч", 1_000)
+    ):
+        if thousands_degree[0] in string:
+            before_thousand_degree =\
+                string[ : string.index(\
+                    thousands_degree[0]\
+                        ) - 1]
+
+            summa += get_up_to_thousands(
+                string[ : string.index(\
+                    thousands_degree[0]\
+                ) - 1]
+            )
+            
+            string = string.replace(before_thousand_degree, "", 1)
+            string = string[string.index(" ") + 1 : ]
+
+    summa += get_up_to_thousands(string)
+
+    return summa

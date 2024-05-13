@@ -4,6 +4,7 @@ from models.loops import LoopsManager
 from api_server.server import ServerSocket
 from datetime import datetime as dt
 from os import system
+from platform import platform
 
 
 class Garik:
@@ -18,24 +19,16 @@ class Garik:
         await self.__server_socket.serve()
 
 
-# async def main(args: list[str]) -> None:
-#     if args[0] == "start":
-#         garik = Garik()
+async def main(args: list[str]) -> None:
+    if args[0] == "start":
+        garik = Garik()
 
-#         await garik.run()
-
-
-# if __name__ == "__main__":
-#     asyncio.run(main(argv[1:]))
-
-
-async def main() -> None:
-    system("cls")
-    garik = Garik()
-    await garik.run()
+        await garik.run()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
-
-# python manager.py start
+    if platform().startswith("Windows"):
+        system("cls")
+        asyncio.run(main(argv[1:]))
+    else:
+        print("Coming soon (may be)...")

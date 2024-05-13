@@ -12,7 +12,6 @@ namespace Garik.Backend
 
         async public Task<string> SendMessage(string message)
         {
-            //MessageBox.Show($"\'{message}\'");
             string responseMessage;
 
             using (TcpClient client = new TcpClient())
@@ -24,7 +23,7 @@ namespace Garik.Backend
 
                 await stream.WriteAsync(data, 0, data.Length);
 
-                byte[] responseData = new byte[1024];
+                byte[] responseData = new byte[4096];
                 int bytesRead = await stream.ReadAsync(responseData, 0, responseData.Length);
                 responseMessage = Encoding.UTF8.GetString(responseData, 0, bytesRead);
             }

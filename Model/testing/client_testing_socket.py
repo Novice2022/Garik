@@ -1,6 +1,7 @@
 import asyncio
 from os import system
 
+
 async def tcp_client():
     system("cls")
     while True:
@@ -18,13 +19,9 @@ async def tcp_client():
 
         writer.write(message.encode())
 
-        data = await reader.read(100)
+        data = await reader.read(4096)
         print(f'[out]\t{data.decode()}')
 
         writer.close()
 
 asyncio.run(tcp_client())
-
-"""
-python "C:/Projects/Garik/Model/testing/client_testing_socket.py"
-"""

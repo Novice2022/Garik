@@ -20,7 +20,7 @@ class ServerSocket:
 		writer: asyncio.StreamWriter
 	) -> None:
 		try:
-			bytes_message = await reader.read(512)
+			bytes_message = await reader.read(4096)
 			message = bytes_message.decode(encoding="utf-8")
 
 			message_owner = writer.get_extra_info('peername')
@@ -28,7 +28,7 @@ class ServerSocket:
 			print(
 				f"[in <-- {message_owner}]\t<{dt.now()}>\t{\
 					message + '\t' if message == "listen"\
-						else message}" if message != "красный" else ""
+						else message}" if message != "shutdown" else ""
 			)
 
 			process_result = await self.__processing_method(
